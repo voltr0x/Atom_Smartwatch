@@ -1,11 +1,7 @@
 package com.voltrox.atom;
 
 import android.content.Intent;
-import android.database.ContentObserver;
 import android.os.AsyncTask;
-import android.os.Build;
-import android.support.annotation.RequiresApi;
-import android.support.v4.view.GravityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,14 +16,15 @@ import com.voltrox.atom.utilities.OpenWeatherJsonUtils;
 
 import java.net.URL;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Calendar mCalendar;
-    private TextView mWeatherTextView;
+    TextView mWeatherTextView;
+    TextView mLowTempTextView;
+    TextView mHumidTextView;
+    TextView mPressureTextView;
+    TextView mSpeedTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         /*Display date*/
-        mCalendar = Calendar.getInstance();
+        Calendar mCalendar = Calendar.getInstance();
         String currentDate = DateFormat.getDateInstance(DateFormat.FULL).format(mCalendar.getTime());
         TextView displayDate = findViewById(R.id.showDate);
         displayDate.setText(currentDate);
@@ -52,7 +49,11 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /*Display weather on textview*/
-        mWeatherTextView = findViewById(R.id.tv_weather_data);
+        mWeatherTextView = findViewById(R.id.high_temperature);
+        mLowTempTextView = findViewById(R.id.low_temperature);
+        mHumidTextView = findViewById(R.id.showHumid);
+        mPressureTextView = findViewById(R.id.showPressure);
+        mSpeedTextView = findViewById(R.id.showSpeed);
         loadWeatherData();
     }
 
@@ -64,10 +65,10 @@ public class MainActivity extends AppCompatActivity {
         new FetchWeatherTask().execute(location);
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, String> {
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         @Override
-        protected String doInBackground(String... params) {
+        protected String[] doInBackground(String... params) {
             //if no zip code, theres nothing to look up
             if (params.length == 0){
                 return null;
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 String jsonWeatherResponse = NetworkUtils
                         .getResponseFromHttpUrl(weatherRequestUrl);
 
-                String simpleJsonWeatherData = OpenWeatherJsonUtils
+                String[] simpleJsonWeatherData = OpenWeatherJsonUtils
                         .getSimpleWeatherStringsFromJson(MainActivity.this, jsonWeatherResponse);
 
                 return simpleJsonWeatherData;
@@ -93,9 +94,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(String weatherData) {
+        protected void onPostExecute(String[] weatherData) {
             if (weatherData != null) {
-                    mWeatherTextView.setText(weatherData);
+                    String tv_temp = weatherData[0];
+                    String tv_humid = weatherData[1];
+                    String tv_pressure = weatherData[2];
+                    String tv_wind_speed = weatherData[3];
+                    String tv_low = weatherData[4];
+
+                    mWeatherTextView.setText(tv_temp);
+                    mLowTempTextView.setText(tv_low);
+                    mHumidTextView.setText(tv_humid);
+                    mPressureTextView.setText(tv_pressure + " mbar");
+                    mSpeedTextView.setText(tv_wind_speed + " kmph");
+
             }
         }
     }

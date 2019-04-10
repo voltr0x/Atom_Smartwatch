@@ -1,56 +1,41 @@
 package com.voltrox.atom.utilities;
 
-import android.content.ContentValues;
 import android.content.Context;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.ContentHandler;
-import java.net.HttpURLConnection;
-
 public class OpenWeatherJsonUtils {
 
+    public static String[] sendWeatherData;
     /*Method to parse JSON data obtained from URL*/
-    public static String getSimpleWeatherStringsFromJson(Context context, String forecastJsonStr)
+    public static String[] getSimpleWeatherStringsFromJson(Context context, String forecastJsonStr)
         throws JSONException {
-
-        /* Weather information. Each day's forecast info is an element of the "list" array */
-        final String OWM_LIST = "list";
 
         /* All temperatures are children of the "temp" object */
         final String OWM_TEMPERATURE = "temp";
 
         /* Max temperature for the day */
-        final String OWM_MAX = "max";
-        final String OWM_MIN = "min";
+        final String OWM_MAX = "temp_max";
+        final String OWM_MIN = "temp_min";
 
         final String OWM_HUMIDITY = "humidity";
         final String OWM_PRESSURE = "pressure";
-
-        final String OWM_WEATHER = "weather";
         final String OWM_DESCRIPTION = "main";
 
-        final String OWM_MESSAGE_CODE = "cod";
-
-        /* String array to hold each day's weather String */
-        String parsedWeatherData = null;
+        final String OWM_WIND = "wind";
+        final String OWM_WSPEED = "speed";
 
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
-
-
-
         JSONObject weatherDescription = forecastJson.getJSONObject(OWM_DESCRIPTION);
         String temperature = weatherDescription.getString(OWM_TEMPERATURE);
-
-
         String humidity = weatherDescription.getString(OWM_HUMIDITY);
         String pressure = weatherDescription.getString(OWM_PRESSURE);
-        parsedWeatherData = "Temperature " + temperature + "\n" +
-                            "Humidity " + humidity + "\n" +
-                            "Pressure" + pressure;
+        String low = weatherDescription.getString(OWM_MIN);
 
-        return parsedWeatherData;
+        JSONObject windDescription = forecastJson.getJSONObject(OWM_WIND);
+        String windspeed = windDescription.getString(OWM_WSPEED);
+
+        return sendWeatherData = new String[]{temperature, humidity, pressure, windspeed, low};
     }
 }
